@@ -12,7 +12,3 @@ impl GlobalScope {
         Self { session }
     }
 }
-
-impl GlobalScope {
-    pub fn read_command_arguments()
-}

@@ -1,0 +1,1171 @@
+LEDGER(1)                   General Commands Manual                  LEDGER(1)
+
+NNAAMMEE
+     lleeddggeerr - Command-line, double-entry account reporting tool
+
+SSYYNNOOPPSSIISS
+     lleeddggeerr [_o_p_t_i_o_n_s] [_c_o_m_m_a_n_d] [_a_r_g_u_m_e_n_t_s]
+
+DDEESSCCRRIIPPTTIIOONN
+     lleeddggeerr is a command-line accounting tool based on the power and
+     completeness of double-entry accounting.  It is only a reporting tool,
+     which means it never modifies your data files, but it does offer a large
+     selection of reports, and different ways to customize them to your needs.
+
+CCOOMMMMAANNDDSS
+     lleeddggeerr accepts several top-level commands, each of which generates a
+     different kind of basic report.  Most of them accept a _r_e_p_o_r_t_-_q_u_e_r_y
+     argument, in order to determine what should be reported.  To understand
+     the syntax of a _r_e_p_o_r_t_-_q_u_e_r_y, see the section on _Q_U_E_R_I_E_S.  In its most
+     basic form, simply specifying one or more strings produces a report for
+     all accounts containing those strings.
+
+     If no command is given, lleeddggeerr enters a REPL, or command loop, allowing
+     several commands to be executed on the same dataset without reparsing.
+
+     The following is a complete list of accepted reporting commands:
+
+     aaccccoouunnttss [_r_e_p_o_r_t_-_q_u_e_r_y]
+               List all accounts for postings that match the _r_e_p_o_r_t_-_q_u_e_r_y.
+
+     bbaallaannccee [_r_e_p_o_r_t_-_q_u_e_r_y]
+              Print a balance report showing totals for postings that match
+              _r_e_p_o_r_t_-_q_u_e_r_y, and aggregate totals for parents of those
+              accounts.  Options most commonly used with this command are:
+              ----bbaassiiss (--BB)     Report in terms of cost basis, not amount or
+                               value.  This is the only form of report which
+                               is guaranteed to always balance to zero, when
+                               no _r_e_p_o_r_t_-_q_u_e_r_y is specified.  Only show totals
+                               for the top-most accounts.
+              ----eemmppttyy (--EE)     Show accounts whose total is zero.
+              ----ffllaatt           Rather than display a hierarchical tree,
+                               flatten the report to show subtotals for only
+                               accounts matching _r_e_p_o_r_t_-_q_u_e_r_y.
+              ----nnoo--ttoottaall       Suppress the summary total shown at the bottom
+                               of the report.
+
+              The synonyms bbaall and bb are also accepted.
+
+     bbuuddggeett [_r_e_p_o_r_t_-_q_u_e_r_y]
+              A special balance report which includes three extra columns: the
+              amount budgeted during the reporting period, how spending
+              differed from the budget, and the percentage of budget spent
+              (exceeds 100% if you go over budget).  Note that budgeting
+              requires one or more "periodic transactions" to be defined in
+              your data file(s).  See the manual for more information.
+
+     cclleeaarreedd [_r_e_p_o_r_t_-_q_u_e_r_y]
+              A special balance report which adds two extra columns: the
+              cleared balance for each account, and the date of the most
+              recent cleared posting in that account.  For this accounting to
+              be meaningful, the cleared flag must be set on at least one
+              posting.  See the manual for more information.
+
+     ccoommmmooddiittiieess [_r_e_p_o_r_t_-_q_u_e_r_y]
+              List all commodities for postings matching the _r_e_p_o_r_t_-_q_u_e_r_y.
+
+     ccoonnvveerrtt  Reads data from a CSV (comma-separated values) file and
+              generates lleeddggeerr transactions.
+
+     ccssvv [_r_e_p_o_r_t_-_q_u_e_r_y]
+              Report of postings matching the _r_e_p_o_r_t_-_q_u_e_r_y in CSV format
+              (comma-separated values).  Useful for exporting data to a
+              spreadsheet for further analysis or charting.
+
+     eennttrryy [_e_n_t_r_y_-_t_e_m_p_l_a_t_e]
+              Generate and display a new, properly formatted lleeddggeerr
+              transaction by comparing the _e_n_t_r_y_-_t_e_m_p_l_a_t_e to the transactions
+              in your data file(s).  For more information on draft templates
+              and using this command to quickly create new transactions, see
+              the section _E_N_T_R_I_E_S.
+
+              The synonym xxaacctt is also accepted.
+
+     eemmaaccss [_q_u_e_r_y]
+              Output posting and transaction data in a format readily consumed
+              by the Emacs editor, in a series of Lisp forms.  This is used by
+              the Emacs ledger-mode to process reporting data from lleeddggeerr.
+
+     eeqquuiittyy [_r_e_p_o_r_t_-_q_u_e_r_y]
+              Print a transaction with a series of postings that balance
+              current totals for accounts matching the _r_e_p_o_r_t_-_q_u_e_r_y in a
+              special account called Equity:Opening Balances.  The purpose of
+              this report is to close the books for a prior year, while using
+              these equity postings to carry forward those balances.
+
+     ppaayyeeeess [_r_e_p_o_r_t_-_q_u_e_r_y]
+              List all payees for postings matching the _r_e_p_o_r_t_-_q_u_e_r_y.
+
+     pprriicceemmaapp
+              Produce a file which can be used to generate a graph with
+              graphviz showing the relationship of commodities in the lleeddggeerr
+              file.
+
+     pprriicceess [_r_e_p_o_r_t_-_q_u_e_r_y]
+              Report prices for all commodities in postings matching the
+              _r_e_p_o_r_t_-_q_u_e_r_y.  The prices are reported with the granularity of a
+              single day.
+
+     pprriicceeddbb [_r_e_p_o_r_t_-_q_u_e_r_y]
+              Report prices for all commodities in postings matching the
+              _r_e_p_o_r_t_-_q_u_e_r_y.  Prices are reported down to the second, using the
+              same format as the _~_/_._p_r_i_c_e_d_b file.
+
+     pprriinntt [_r_e_p_o_r_t_-_q_u_e_r_y]
+              Print out the full transactions of any matching postings using
+              the same format as they would appear in a data file.  This can
+              be used to extract subsets from a lleeddggeerr file to transfer to
+              other files.
+
+     ppuusshh [_o_p_t_i_o_n_s]
+              In the REPL, push a set of command-line _o_p_t_i_o_n_s, so that they
+              will apply to all subsequent reports.
+
+     ppoopp      In the REPL, pop any option settings that have been ppuusshhed.
+
+     rreeggiisstteerr [_r_e_p_o_r_t_-_q_u_e_r_y]
+              List all postings matching the _r_e_p_o_r_t_-_q_u_e_r_y.  This is one of the
+              most common commands, and can be used to provide a variety of
+              useful reports.  Options most commonly used with this command
+              are:
+
+              ----aavveerraaggee (--AA)   Show the running average, rather than a running
+                               total.
+              ----ccuurrrreenntt (--cc)   Don't show postings beyond the present day.
+              ----eexxcchhaannggee _c_o_m_m_o_d_i_t_y (--XX)
+                               Render all values in the given _c_o_m_m_o_d_i_t_y, if a
+                               price conversion rate can be determined.  Rates
+                               are always displayed relative to the date of
+                               the posting they are calculated for.  This
+                               means a rreeggiisstteerr report is a historical value
+                               report.  For current values, it may be
+                               preferable to use the bbaallaannccee report.
+              ----ggaaiinn (--GG)      Show any gains (or losses) in commodity values
+                               over time.
+              ----hheeaadd _n_u_m_b_e_r    Only show the top _n_u_m_b_e_r postings.
+              ----hhiissttoorriiccaall (--HH)
+                               Value commodities at the time of their
+                               acquisition.
+              ----iinnvveerrtt         Invert the value of amounts shown.
+              ----mmaarrkkeett (--VV)    Show current market values for all amounts.
+                               This is determined in a somewhat magical
+                               fashion.  It is probably more straightforward
+                               to use ----eexxcchhaannggee option.
+              ----ppeerriioodd _t_i_m_e_-_p_e_r_i_o_d (--pp)
+                               Show postings only for the given _t_i_m_e_-_p_e_r_i_o_d.
+              ----rreellaatteedd (--rr)   Show postings that are related to those that
+                               would have been shown.  It has the effect of
+                               displaying the "other side" of the postings.
+              ----ssoorrtt _v_a_l_u_e_-_e_x_p_r_e_s_s_i_o_n (--SS)
+                               Sort postings by evaluating the given
+                               _v_a_l_u_e_-_e_x_p_r_e_s_s_i_o_n.  Note that a comma-separated
+                               list of expressions is allowed, in which case
+                               each sorting term is used in order to determine
+                               the final ordering.  For example, to search by
+                               date and then amount, one would use:
+                                     ledger reg --sort 'date, amount'
+                               The sort order may be controlled with the '-'
+                               sign. For example, to sort in reverse
+                               chronological order:
+                                     ledger reg --sort '-date'
+              ----ttaaiill _n_u_m_b_e_r    Only show the last _n_u_m_b_e_r postings.
+              ----uunncclleeaarreedd (--UU)
+                               Only show uncleared (i.e., recent) postings.
+
+              There are also several grouping options that can be useful:
+
+              ----bbyy--ppaayyeeee (--PP)  Group postings by common payee names.
+              ----ddaaiillyy (--DD)     Group postings by day.
+              ----wweeeekkllyy (--WW)    Group postings by week (starting on Sundays).
+              ----ssttaarrtt--ooff--wweeeekk _d_a_y
+                               Set the start of each report grouped by week to
+                               the given _d_a_y.
+              ----mmoonntthhllyy (--MM)   Group postings by month.
+              ----qquuaarrtteerrllyy      Group postings by fiscal quarter.
+              ----yyeeaarrllyy (--YY)    Group postings by year.
+              ----ddaayyss--ooff--wweeeekk   Group postings by the day of the week on which
+                               they took place.
+              ----ssuubbttoottaall (--ss)  Group all postings together.  This is very
+                               similar to the totals shown by the bbaallaannccee
+                               report.
+
+              The synonyms rreegg and rr are also accepted.
+
+     sseerrvveerr   This command requires that Python support be active.  If so, it
+              starts up an HTTP server listening for requests on port 9000.
+              This provides an alternate interface to creating and viewing
+              reports.  Note that this is very much a work-in-progress, and
+              will not be fully functional until a later version.
+
+     sseelleecctt [_s_q_l_-_q_u_e_r_y]
+              List all postings matching the _s_q_l_-_q_u_e_r_y.  This command allows
+              to generate SQL-like queries, e.g.:
+                    ledger select date,amount from posts where
+                    account=~/Income/
+
+     ssoouurrccee   Parse a journal file and checks it for errors.  lleeddggeerr will
+              return success if no errors are found.
+
+     ssttaattss [_r_e_p_o_r_t_-_q_u_e_r_y]
+              Provide summary information about all the postings matching
+              _r_e_p_o_r_t_-_q_u_e_r_y.  It provides information such as:
+                    ++oo   Time range of all matching postings
+                    ++oo   Unique payees
+                    ++oo   Unique accounts
+                    ++oo   Postings total
+                    ++oo   Uncleared postings
+                    ++oo   Days since last posting
+                    ++oo   Posts in the last 7 days
+                    ++oo   Posts in the last 30 days
+                    ++oo   Posts this month
+
+     xxmmll [_r_e_p_o_r_t_-_q_u_e_r_y]
+              Output data relating to the current report in XML format.  It
+              includes all accounts and commodities involved in the report,
+              plus the postings and the transactions they are contained in.
+              See the manual for more information.
+
+OOPPTTIIOONNSS
+     ----aabbbbrreevv--lleenn _I_N_T
+              Set the minimum length an account can be abbreviated to if it
+              doesn't fit inside the aaccccoouunntt--wwiiddtthh.  If _I_N_T is zero, then the
+              account name will be truncated on the right.  If _I_N_T is greater
+              than aaccccoouunntt--wwiiddtthh then the account will be truncated on the
+              left, with no shortening of the account names in order to fit
+              into the desired width.
+
+     ----aaccccoouunntt _E_X_P_R
+              Prepend _E_X_P_R to all accounts reported.  That is, the option
+              ----aaccccoouunntt _"_'_P_e_r_s_o_n_a_l_'_" would tack _P_e_r_s_o_n_a_l_: and ----aaccccoouunntt
+              _"_t_a_g_(_'_V_A_T_'_)_" would tack the value of the VAT tag to the
+              beginning of every account reported in a bbaallaannccee or rreeggiisstteerr
+              report.
+
+     ----aaccccoouunntt--wwiiddtthh _I_N_T
+              Set the width of the account column in the rreeggiisstteerr report to
+              _I_N_T characters.
+
+     ----aaccttuuaall (--LL)
+              Report only real transactions, with no automated or virtual
+              transactions used.
+
+     ----aadddd--bbuuddggeett
+              Show only un-budgeted postings.
+
+     ----aammoouunntt _E_X_P_R (--tt)
+              Apply the given value expression to the posting amount.  Using
+              ----aammoouunntt _E_X_P_R you can apply an arbitrary transformation to the
+              postings.
+
+     ----aammoouunntt--ddaattaa (--jj)
+              On a register report print only the dates and amount of
+              postings.  Useful for graphing and spreadsheet applications.
+
+     ----aammoouunntt--wwiiddtthh _I_N_T
+              Set the width in characters of the amount column in the rreeggiisstteerr
+              report.
+
+     ----aannoonn   Anonymize registry output, mostly for sending in bug reports.
+
+     ----aannssii   Use color if the terminal supports it.  Alias for ----ccoolloorr
+
+     ----aarrggss--oonnllyy
+              Ignore init files and environment variables for the lleeddggeerr run.
+
+     ----aauuttoo--mmaattcchh
+              When generating a ledger transaction from a CSV file using the
+              ccoonnvveerrtt command, automatically match an account from the Ledger
+              journal.
+
+     ----aauuxx--ddaattee
+              Show auxiliary dates for all calculations.  Alias for
+              ----eeffffeeccttiivvee
+
+     ----aavveerraaggee (--AA)
+              Print average values over the number of transactions instead of
+              running totals.
+
+     ----aavveerraaggee--lloott--pprriicceess
+              Report the average price at which each commodity was purchased
+              in a balance report.
+
+     ----bbaallaannccee--ffoorrmmaatt _F_M_T
+              Specify the format to use for the bbaallaannccee report.
+
+     ----bbaassee   Reduce convertible commodities down the bottom of the
+              conversion, e.g.  display time in seconds.
+
+     ----bbaassiiss (--BB)
+              Report the cost basis on all posting.  Alias for ----ccoosstt
+
+     ----bbeeggiinn _D_A_T_E (--bb)
+              Specify the start _D_A_T_E of all calculations.  Transactions before
+              that date will be ignored.
+
+     ----bboolldd--iiff _E_X_P_R
+              Print the entire line in bold if the given value expression is
+              true.
+
+     ----bbuuddggeett
+              Only display budgeted items.  In a rreeggiisstteerr report this displays
+              transaction in the budget, in a balance report this displays
+              accounts in the budget.
+
+     ----bbuuddggeett--ffoorrmmaatt _F_M_T
+              Specify the format to use for the bbuuddggeett report.
+
+     ----bbyy--ppaayyeeee (--PP)
+              Group postings in the register report by common payee names.
+
+     ----cchheecckk--ppaayyeeeess
+              Enable strict and pedantic checking for payees as well as
+              accounts, commodities and tags.
+
+     ----cclleeaarreedd (--CC)
+              Display only cleared postings.
+
+     ----cclleeaarreedd--ffoorrmmaatt _F_M_T
+              Specify the format to use for the cclleeaarreedd report
+
+     ----ccoollllaappssee (--nn)
+              Print only the top level accounts.
+
+     ----ccoollllaappssee--iiff--zzeerroo
+              Collapse the account display only if it has a zero balance.
+
+     ----ccoolloorr  Use color if the terminal supports it.  Alias for ----aannssii
+
+     ----ccoolluummnnss _I_N_T
+              Make the rreeggiisstteerr report _I_N_T characters wide.  By default lleeddggeerr
+              will use all available columns in your terminal.
+
+     ----ccoosstt   Report the cost basis on all posting.  Alias for ----bbaassiiss.
+
+     ----ccoouunntt  Direct lleeddggeerr to report the number of items when appended to the
+              ccoommmmooddiittiieess, aaccccoouunnttss or ppaayyeeeess commands.
+
+     ----ccssvv--ffoorrmmaatt _F_M_T
+              Format ccssvv report according to _F_M_T.
+
+     ----ccuurrrreenntt (--cc)
+              Shorthand for ----lliimmiitt _'_d_a_t_e _<_= _t_o_d_a_y_'.
+
+     ----ddaaiillyy (--DD)
+              Shorthand for ----ppeerriioodd _d_a_i_l_y.
+
+     ----ddaattee _E_X_P_R
+              Transform the date of the transaction using _E_X_P_R.
+
+     ----ddaattee--ffoorrmmaatt _D_A_T_E_F_M_T (--yy)
+              Print dates using _D_A_T_E_F_M_T.  Refer to strftime(3) for details on
+              the format string syntax.
+
+     ----ddaatteettiimmee--ffoorrmmaatt _D_A_T_E_T_I_M_E_F_M_T
+              Print datetimes using _D_A_T_E_T_I_M_E_F_M_T.  Refer to strftime(3) for
+              details on the format string syntax.
+
+     ----ddaattee--wwiiddtthh _I_N_T
+              Specify the width, in characters, of the date column in the
+              rreeggiisstteerr report.
+
+     ----ddaayy--bbrreeaakk
+              Break up rreeggiisstteerr report of timelog entries that span multiple
+              days by day.
+
+     ----ddaayyss--ooff--wweeeekk
+              Group transactions by the days of the week.  Alias for ----ddooww.
+
+     ----ddcc     Display register or balance in debit/credit format If you use
+              ----ddcc with either the rreeggiisstteerr or bbaallaannccee commands, you will now
+              get separate columns for debits and credits.
+
+     ----ddeebbuugg _S_T_R
+              If lleeddggeerr has been built with debug options this will provide
+              extra data during the run.
+
+     ----ddeecciimmaall--ccoommmmaa
+              Direct lleeddggeerr to parse journals using the European standard
+              comma as decimal separator, vice a period.
+
+     ----ddeepptthh _I_N_T
+              Limit the depth of the account tree.  In a balance report, for
+              example, ----ddeepptthh _2 will print balances only for accounts with
+              two levels, i.e.  EExxppeennsseess::EEnntteerrttaaiinnmmeenntt but not
+              EExxppeennsseess::EEnntteerrttaaiinnmmeenntt::DDiinniinngg.  This is a display predicate,
+              which means it only affects display, not the total calculations.
+
+     ----ddeettaaiill
+              Related to ccoonnvveerrtt command. Synonym to ----rriicchh--ddaattaa option.
+
+     ----ddeevviiaattiioonn
+              Report each posting's deviation from the average.  It is only
+              meaningful in the rreeggiisstteerr and pprriicceess reports.
+
+     ----ddiissppllaayy _E_X_P_R (--dd)
+              Display lines that satisfy the expression _E_X_P_R.
+
+     ----ddiissppllaayy--aammoouunntt _E_X_P_R
+              Apply a transformation to the _d_i_s_p_l_a_y_e_d amount.  This occurs
+              after calculations occur.
+
+     ----ddiissppllaayy--ttoottaall _E_X_P_R
+              Apply a transformation to the _d_i_s_p_l_a_y_e_d total.  This occurs
+              after calculations occur.
+
+     ----ddooww    Group transactions by the days of the week.  Alias for
+              ----ddaayyss--ooff--wweeeekk.
+
+     ----ddoowwnnllooaadd
+              Cause quotes to be automagically downloaded, as needed, by
+              running a script named _g_e_t_q_u_o_t_e and expecting that script to
+              return a value understood by lleeddggeerr.  A sample implementation of
+              a _g_e_t_q_u_o_t_e script, implemented in Perl, is provided in the
+              distribution.  Downloaded quote price are then appended to the
+              price database, usually specified using the environment variable
+              LEDGER_PRICE_DB.
+
+     ----eeffffeeccttiivvee
+              Show auxiliary dates for all calculations.  Alias for
+              ----aauuxx--ddaattee.
+
+     ----eemmppttyy (--EE)
+              Include empty accounts in report.
+
+     ----eenndd _D_A_T_E (--ee)
+              Constrain the report so that transactions on or after _D_A_T_E are
+              not considered.
+
+     ----eeqquuiittyy
+              Related to the eeqquuiittyy command.  Gives current account balances
+              in the form of a register report.
+
+     ----eexxaacctt  Report beginning and ending of periods by the date of the first
+              and last posting occurring in that period.
+
+     ----eexxcchhaannggee _C_O_M_M_O_D_I_T_Y [, _C_O_M_M_O_D_I_T_Y_, _._._.] (--XX)
+              Display values in terms of the given _C_O_M_M_O_D_I_T_Y.  The latest
+              available price is used.
+
+     ----ffiillee _F_I_L_E (--ff)
+              Read journal data from _F_I_L_E.
+
+     ----ffiirrsstt _I_N_T
+              Print the first _I_N_T entries.  Opposite of ----llaasstt _I_N_T.  Alias for
+              ----hheeaadd.
+
+     ----ffllaatt   Force the full names of accounts to be used in the balance
+              report.  The balance report will not use an indented tree.
+
+     ----ffoorrccee--ccoolloorr
+              Output TTY color codes even if the TTY doesn't support them.
+              Useful for TTYs that don't advertise their capabilities
+              correctly.
+
+     ----ffoorrccee--ppaaggeerr
+              Force lleeddggeerr to paginate its output.
+
+     ----ffoorreeccaasstt--wwhhiillee _E_X_P_R
+              Continue forecasting while _V_E_X_P_R is true.  Alias for ----ffoorreeccaasstt.
+
+     ----ffoorreeccaasstt--yyeeaarrss _I_N_T
+              Forecast at most _I_N_T years into the future.
+
+     ----ffoorrmmaatt _F_M_T (--FF)
+              Use the given format string _F_M_T to print output.
+
+     ----ggaaiinn (--GG)
+              Report net gain or loss for commodities that have a price
+              history.
+
+     ----ggeenneerraatteedd
+              Include auto-generated postings (such as those from automated
+              transactions) in the report, in cases where you normally
+              wouldn't want them.
+
+     ----ggrroouupp--bbyy _E_X_P_R
+              Group transaction together in the rreeggiisstteerr report.  _E_X_P_R can be
+              anything, although most common would be _p_a_y_e_e or _c_o_m_m_o_d_i_t_y.  The
+              ttaagg() function is also useful here.
+
+     ----ggrroouupp--ttiittllee--ffoorrmmaatt _F_M_T
+              Set the format for the headers that separate reports section of
+              a grouped report.  Only has effect with a ----ggrroouupp--bbyy _E_X_P_R
+              register report.
+
+     ----hheeaadd _I_N_T
+              Print the first _I_N_T entries.  Opposite of ----ttaaiill _I_N_T.  Alias for
+              ----ffiirrsstt
+
+     ----hheellpp   Print this man page.
+
+     ----iimmmmeeddiiaattee
+              Evaluate calculations immediately rather than lazily.
+
+     ----iimmppoorrtt _F_I_L_E
+              Import _F_I_L_E as Python module.
+
+     ----iinniitt--ffiillee _F_I_L_E (--ii)
+              Read _F_I_L_E before any other lleeddggeerr file.  This file may not
+              contain any postings, but it may contain option settings.  To
+              specify options in the init file, use the same syntax as the
+              command-line, but put each option on its own line.
+
+     ----iinnjjeecctt _S_T_R
+              Use _S_T_R amounts in calculations.  In case you know what amount a
+              transaction should be, but the actual transaction has the wrong
+              value you can use metadata _S_T_R to specify the expected amount.
+
+     ----iinnppuutt--ddaattee--ffoorrmmaatt _D_A_T_E_F_M_T
+              Specify the input date format for journal entries.
+
+     ----iinnvveerrtt
+              Change the sign of all reported values.
+
+     ----llaasstt _I_N_T.
+              Report only the last _I_N_T entries.  Opposite of ----ffiirrsstt _I_N_T.
+              Only useful on a register report.  Alias for ----ttaaiill.
+
+     ----lleeeewwaayy _I_N_T (--ZZ)
+              Alias for ----pprriiccee--eexxpprr.
+
+     ----lliimmiitt _E_X_P_R (--ll)
+              Limit postings in calculations.
+
+     ----lloott--ddaatteess
+              Report the date on which each commodity in a balance report was
+              purchased.
+
+     ----lloott--nnootteess
+              Report the tag attached to each commodity in a balance report.
+
+     ----lloott--pprriicceess
+              Report the price at which each commodity in a balance report was
+              purchased.
+
+     ----lloottss   Report the date and price at which each commodity was purchased
+              in a balance report.
+
+     ----lloottss--aaccttuuaall
+              Preserve the uniqueness of commodities so they aren't merged
+              during reporting without printing the lot annotations.
+
+     ----mmaarrkkeett (--VV)
+              Use the latest market value for all commodities.
+
+     ----mmaasstteerr--aaccccoouunntt _S_T_R
+              Prepend all account names with _S_T_R
+
+     ----mmeettaa _S_T_R
+              In the register report, prepend the transaction with the value
+              of the given tag _S_T_R.
+
+     ----mmeettaa--wwiiddtthh _I_N_T
+              Specify the width of the Meta column used for the ----mmeettaa _T_A_G
+              options.
+
+     ----mmoonntthhllyy (--MM)
+              Shorthand for ----ppeerriioodd _m_o_n_t_h_l_y.
+
+     ----nnoo--aalliiaasseess
+              Aliases are completely ignored.
+
+     ----nnoo--ccoolloorr
+              Suppress any color TTY output.
+
+     ----nnoo--ppaaggeerr
+              Disables the pager on TTY output.
+
+     ----nnoo--rreevvaalluueedd
+              Stop lleeddggeerr from showing <Revalued> postings.
+
+     ----nnoo--rroouunnddiinngg
+              Don't output "<Adjustment>" postings.  Note that this will cause
+              the running total to often not add up!  Its main use is for
+              ----aammoouunntt--ddaattaa (--jj) and ----ttoottaall--ddaattaa (--JJ) reports.
+
+     ----nnoo--ttiittlleess
+              Suppress the output of group titles.
+
+     ----nnoo--ttoottaall
+              Suppress printing the final total line in a balance report.
+
+     ----nnooww _D_A_T_E
+              Use _D_A_T_E as the current date.  This affects the output when
+              using ----ppeerriioodd, ----bbeeggiinn, ----eenndd, or ----ccuurrrreenntt to decide which
+              dates lie in the past or future.
+
+     ----oonnllyy _E_X_P_R
+              This is a postings predicate that applies after certain
+              transforms have been executed, such as periodic gathering.
+
+     ----ooppttiioonnss
+              Display the options in effect for this lleeddggeerr invocation, along
+              with their values and the source of those values.
+
+     ----oouuttppuutt _F_I_L_E (--oo)
+              Redirect the output of lleeddggeerr to _F_I_L_E.
+
+     ----ppaaggeerr _S_T_R
+              Use _S_T_R as the pager program.
+
+     ----ppaayyeeee  Sets a value expression for formatting the payee.  In the
+              rreeggiisstteerr report this prevents the second entry from having a
+              date and payee for each transaction.
+
+     ----ppaayyeeee--wwiiddtthh _I_N_T
+              Set the number of columns dedicated to the payee in the register
+              report to _I_N_T.
+
+     ----ppeeddaannttiicc
+              Accounts, tags or commodities not previously declared will cause
+              errors.
+
+     ----ppeennddiinngg
+              Use only postings that are marked pending.
+
+     ----ppeerrcceenntt (--%%)
+              Calculate the percentage value of each account in a balance
+              reports.  Only works for account that have a single commodity.
+
+     ----ppeerriioodd _P_E_R_I_O_D (--pp)
+              Define a period expression that sets the time period during
+              which transactions are to be accounted.  For a rreeggiisstteerr report
+              only the transactions that satisfy the period expression with be
+              displayed.  For a balance report only those transactions will be
+              accounted in the final balances.
+
+     ----ppeerriioodd--ssoorrtt
+              Sort the posting within transactions using the given value
+              expression.
+
+     ----ppeerrmmiissssiivvee
+              Quiet balance assertions.
+
+     ----ppiivvoott _T_A_G
+              Produce a balance pivot report "around" the given _T_A_G.
+
+     ----pplloott--aammoouunntt--ffoorrmmaatt _F_M_T
+              Define the output format for an amount data plot.
+
+     ----pplloott--ttoottaall--ffoorrmmaatt _F_M_T
+              Define the output format for a total data plot.
+
+     ----pprreeppeenndd--ffoorrmmaatt _F_M_T
+              Prepend _F_M_T to every line of the output.
+
+     ----pprreeppeenndd--wwiiddtthh _I_N_T
+              Reserve _I_N_T spaces at the beginning of each line of the output.
+
+     ----pprriiccee (--II)
+              Use the price of the commodity purchase for performing
+              calculations.
+
+     ----pprriiccee--ddbb _F_I_L_E
+
+     ----pprriiccee--eexxpp _S_T_R (--ZZ)
+              Set the expected freshness of price quotes, in _I_N_T minutes.
+              That is, if the last known quote for any commodity is older than
+              this value, and if ----ddoowwnnllooaadd is being used, then the Internet
+              will be consulted again for a newer price.  Otherwise, the old
+              price is still considered to be fresh enough.  Alias for
+              ----lleeeewwaayy.
+
+     ----pprriicceess--ffoorrmmaatt _F_M_T
+              Set the format for the pprriicceess report.
+
+     ----pprriicceeddbb--ffoorrmmaatt _F_M_T
+              Set the format expected for the historical price file.
+
+     ----pprriimmaarryy--ddaattee
+              Show primary dates for all calculations.  Alias for
+              ----aaccttuuaall--ddaatteess
+
+     ----qquuaannttiittyy (--OO)
+              Report commodity totals (this is the default).
+
+     ----qquuaarrtteerrllyy
+              Shorthand for ----ppeerriioodd _q_u_a_r_t_e_r_l_y.
+
+     ----rraaww    In the pprriinntt report, show transactions using the exact same
+              syntax as specified by the user in their data file.  Don't do
+              any massaging or interpreting.  Can be useful for minor
+              cleanups, like just aligning amounts.
+
+     ----rreeaall (--RR)
+              Account using only real transactions ignoring virtual and
+              automatic transactions.
+
+     ----rreeccuurrssiivvee--aalliiaasseess
+              Causes lleeddggeerr to try to expand aliases recursively, i.e. try to
+              expand the result of an earlier expansion again, until no more
+              expansions apply.
+
+     ----rreeggiisstteerr--ffoorrmmaatt _F_M_T
+              Define the output format for the rreeggiisstteerr report.
+
+     ----rreellaatteedd (--rr)
+              In a register report show the related account.  This is the
+              other _s_i_d_e of the transaction.
+
+     ----rreellaatteedd--aallll
+              Show all postings in a transaction, similar to ----rreellaatteedd but
+              show both sides of each transaction.
+
+     ----rreevvaalluueedd
+              Report discrepancy in values for manual reports by inserting
+              <Revalued> postings.  This is implied when using the ----eexxcchhaannggee
+              (--XX) or ----mmaarrkkeett (--VV) option.
+
+     ----rreevvaalluueedd--oonnllyy
+              Show only <Revalued> postings.
+
+     ----rreevvaalluueedd--ttoottaall
+              Display the sum of the revalued postings as the running total,
+              which serves to show unrealized capital in a gain/losses report.
+
+     ----rriicchh--ddaattaa
+              When generating a ledger transaction from a CSV file using the
+              ccoonnvveerrtt command, add CSV, Imported, and UUID meta-data.
+
+     ----sseeeedd _I_N_T
+              Set the random seed to _I_N_T for the ggeenneerraattee command.  Used as
+              part of development testing.
+
+     ----ssccrriipptt _F_I_L_E
+              Execute a lleeddggeerr script.
+
+     ----ssoorrtt _E_X_P_R (--SS)
+              Sort the register report based on the value expression _E_X_P_R.
+
+     ----ssoorrtt--xxaaccttss
+              Sort the posting within transactions using the given value
+              expression.
+
+     ----ssttaarrtt--ooff--wweeeekk _S_T_R
+              Use _S_T_R as the particular day of the week to start when using
+              the ----wweeeekkllyy option.  _S_T_R can be day names, their abbreviations
+              like "Mon", or the weekday number starting at 0 for Sunday.
+
+     ----ssttrriicctt
+              Accounts, tags or commodities not previously declared will cause
+              warnings.
+
+     ----ssuubbttoottaall (--ss)
+              Report register as a single subtotal.
+
+     ----ttaaiill _I_N_T
+              Report only the last _I_N_T entries.  Only useful on a register
+              report.  Alias for ----llaasstt _I_N_T
+
+     ----ttiimmee--ccoolloonn
+              Display the value for commodities based on seconds as hours and
+              minutes.  Thus 8100s will be displayed as 2:15h instead of
+              2.25h.
+
+     ----ttiimmee--rreeppoorrtt
+              Add two columns to the bbaallaannccee report to show the earliest
+              checkin and checkout times for timelog entries.
+
+     ----ttoottaall _E_X_P_R (--TT)
+              Define a value expression used to calculate the total in
+              reports.
+
+     ----ttoottaall--ddaattaa (--JJ)
+              Show only dates and totals to format the output for plots.
+
+     ----ttoottaall--wwiiddtthh _I_N_T
+              Set the width of the total field in the register report.
+
+     ----ttrraaccee _I_N_T
+              Enable tracing.  The _I_N_T specifies the level of trace desired.
+
+     ----ttrruunnccaattee _S_T_R
+              Indicates how truncation should happen when the contents of
+              columns exceed their width.  Valid arguments for _S_T_R are
+              _l_e_a_d_i_n_g, _m_i_d_d_l_e, and _t_r_a_i_l_i_n_g.  The default is smarter than any
+              of these three, as it considers sub-names within the account
+              name (that style is called "abbreviate").
+
+     ----uunnbbuuddggeetteedd
+              Show only un-budgeted postings.
+
+     ----uunncclleeaarreedd (--UU)
+              Use only uncleared transactions in calculations and reports.
+
+     ----uunnrreeaalliizzeedd
+              Show generated unrealized gain and loss accounts in the balance
+              report.
+
+     ----uunnrreeaalliizzeedd--ggaaiinnss
+              Allow the user to specify what account name should be used for
+              unrealized gains.  Defaults to EEqquuiittyy::UUnnrreeaalliizzeedd GGaaiinnss.  Often
+              set in one's _~_/_._l_e_d_g_e_r_r_c file to change the default.
+
+     ----uunnrreeaalliizzeedd--lloosssseess
+              Allow the user to specify what account name should be used for
+              unrealized losses.  Defaults to EEqquuiittyy::UUnnrreeaalliizzeedd LLoosssseess.  Often
+              set in one's _~_/_._l_e_d_g_e_r_r_c file to change the default.
+
+     ----uunnrroouunndd
+              Perform all calculations without rounding and display results to
+              full precision.
+
+     ----vvaalluueess
+              Show the values used by each tag when used in combination with
+              the ttaaggss command.
+
+     ----vvaalluuee--eexxpprr _E_X_P_R
+              Set a global value expression annotation.
+
+     ----vveerrbboossee
+              Print detailed information on the execution of lleeddggeerr.
+
+     ----vveerriiffyy
+              Enable additional assertions during run-time.  This causes a
+              significant slowdown.  When combined with ----ddeebbuugg _C_O_D_E lleeddggeerr
+              will produce memory trace information.
+
+     ----vveerriiffyy--mmeemmoorryy
+              Verify that every constructed object is properly destructed.
+              This is for debugging purposes only.
+
+     ----vveerrssiioonn
+              Print version information and exit.
+
+     ----wweeeekkllyy (--WW)
+              Shorthand for ----ppeerriioodd _w_e_e_k_l_y.
+
+     ----wwiiddee (--ww)
+              Assume 132 columns instead of the TTY width.
+
+     ----yyeeaarrllyy (--YY)
+              Shorthand for ----ppeerriioodd _y_e_a_r_l_y.
+
+PPRREE--CCOOMMMMAANNDDSS
+     Pre-commands are useful when you aren't sure how a command or option will
+     work.  The difference between a pre-command and a regular command is that
+     pre-commands ignore the journal data file completely, nor is the user's
+     init file read.
+
+     aarrggss / qquueerryy
+              Evaluate the given arguments and report how lleeddggeerr interprets it
+              against the following model transaction:
+
+                    2004/05/27 Book Store
+                        ; This note applies to all postings. :SecondTag:
+                        Expenses:Books                 20 BOOK @ $10
+                        ; Metadata: Some Value
+                        ; Typed:: $100 + $200
+                        ; :ExampleTag:
+                        ; Here follows a note describing the posting.
+                        Liabilities:MasterCard        $-200.00
+
+     eevvaall     Evaluate the given value expression against the model
+              transaction.
+
+     ffoorrmmaatt   Print details of how lleeddggeerr uses the given formatting
+              description and apply it against a model transaction.
+
+     ppaarrssee / eexxpprr
+              Print details of how lleeddggeerr uses the given value expression
+              description and apply it against a model transaction.
+
+     ggeenneerraattee
+              Randomly generates syntactically valid lleeddggeerr data from a seed.
+              Used by the GenerateTests harness for development testing.
+
+     ppeerriioodd   Evaluate the given period and report how lleeddggeerr interprets it.
+
+     tteemmppllaattee
+              Shows the insertion template that the xxaacctt command generates.
+              This is a debugging command.
+
+QQUUEERRIIEESS
+     The syntax for reporting queries can get somewhat complex.  It is a
+     series of query terms with an implicit OR operator between them.  The
+     following terms are accepted:
+
+     _r_e_g_e_x          A bare string is taken as a regular expression matching
+                    the full account name.  Thus, to report the current
+                    balance for all assets and liabilities, you would use:
+
+                          ledger bal asset liab
+
+     ppaayyeeee _r_e_g_e_x (@@_r_e_g_e_x)
+                    Query on the payee, rather than the account.
+
+     ttaagg _r_e_g_e_x (%%_r_e_g_e_x)
+                    Query on tags.
+
+     nnoottee _r_e_g_e_x (==_r_e_g_e_x)
+                    Query on anything found in an item's note.
+
+     ccooddee _r_e_g_e_x (##_r_e_g_e_x)
+                    Query on the xact's optional code (which can be any string
+                    the user wishes).
+
+     _t_e_r_m aanndd _t_e_r_m  Query terms are joined by an implicit OR operator.  You
+                    can change this to AND by using the aanndd keyword.  For
+                    example, to show food expenditures occurring at Shakee's
+                    Pizza, you could say:
+
+                          ledger reg food and @Shakee
+
+     _t_e_r_m oorr _t_e_r_m   When you wish to be more explicit, use the OR operator.
+
+     sshhooww
+
+     nnoott _t_e_r_m       Reverse the logical meaning of the following term.  This
+                    can be used with parentheses to great effect:
+
+                          ledger reg food and @Shakee and not dining
+
+     ( _t_e_r_m )       If you wish to mix OR and AND operators, it is often
+                    helpful to surround logical units with parentheses.  NNOOTTEE:
+                    Because of the way some shells interpret parentheses, you
+                    should always escape them:
+
+                          ledger bal \( assets or liab \) and not food
+
+EEXXPPRREESSSSIIOONNSS
+     aabbss(_v_a_l_u_e)       Return the absolute value of the given _v_a_l_u_e.
+
+     aaccccoouunntt          Return the posting's account.
+
+     aaccccoouunntt__bbaassee     Return the base account, i.e. everything after the last
+                      account delimiter ':'.
+
+     aaccttuuaall           Return true if the transaction is real, i.e not an
+                      automated or virtual transaction, false otherwise.
+
+     aammoouunntt           Return the amount of the posting.
+
+     aammoouunntt__eexxpprr      Return the calculated amount of the posting according to
+                      the ----aammoouunntt option.
+
+     aannssiiffyy__iiff(_v_a_l_u_e, _c_o_l_o_r, _b_o_o_l)
+                      Render the given _v_a_l_u_e as a string, applying the proper
+                      ANSI escape codes to display it in the given _c_o_l_o_r if
+                      _b_o_o_l is true.  It typically checks the value of the
+                      option ----ccoolloorr, for example:
+                            ansify_if(amount, blue, options.color)
+
+     bbeegg__lliinnee         Line number where entry for posting begins.
+
+     bbeegg__ppooss          Character position where entry for posting begins.
+
+     cceeiilliinngg(_v_a_l_u_e)   Return the next integer of _v_a_l_u_e toward +infinity.
+
+     cclleeaarreedd          Return true if the posting was cleared, false otherwise.
+
+     ccooddee             Return the transaction code, the string between the
+                      parenthesis after the date.
+
+     ccoommmmooddiittyy(_v_a_l_u_e)
+                      Return the commodity of _v_a_l_u_e or the posting amount when
+                      _v_a_l_u_e was not specified.
+
+     ddaattee             Return the date of the posting.
+
+     eenndd__lliinnee         Line number where entry for posting ends.
+
+     eenndd__ppooss          Character position where entry for posting ends.
+
+     fflloooorr(_v_a_l_u_e)     Return the next integer of _v_a_l_u_e toward -infinity.
+
+     ffiilleennaammee         The name of the lleeddggeerr data file from whence the posting
+                      came.
+
+     ffoorrmmaatt(_s_t_r_i_n_g)   Evaluate _s_t_r_i_n_g as format just like the ----ffoorrmmaatt option.
+
+     ffoorrmmaatt__ddaattee(_d_a_t_e, _f_o_r_m_a_t)
+                      Return the _d_a_t_e as a string using _f_o_r_m_a_t.  Refer to
+                      strftime(3) for format string details.
+
+     ffoorrmmaatt__ddaatteettiimmee(_d_a_t_e_t_i_m_e, _f_o_r_m_a_t)
+                      Return the _d_a_t_e_t_i_m_e as a string using _f_o_r_m_a_t.  Refer to
+                      strftime(3) for format string details.
+
+     ggeett__aatt(_s_e_q, _i_n_d_e_x)
+                      Return value at _i_n_d_e_x from _s_e_q.  Used internally to
+                      construct different reports.
+
+     hhaass__mmeettaa(_t_a_g)    Return true if the posting has metadata named _t_a_g, false
+                      otherwise.
+
+     hhaass__ttaagg(_t_a_g)     Return true if the posting has metadata named _t_a_g, false
+                      otherwise.
+
+     iiss__sseeqq(_v_a_l_u_e)    Return true if _v_a_l_u_e is a sequence. Used internally.
+
+     jjooiinn(_v_a_l_u_e)      Replace all newlines in _v_a_l_u_e with \n.
+
+     jjuussttiiffyy(_v_a_l_u_e, _f_i_r_s_t___w_i_d_t_h, _l_a_t_t_e_r___w_i_d_t_h, _r_i_g_h_t___j_u_s_t_i_f_y, _c_o_l_o_r_i_z_e)
+                      Right or left justify the string representing _v_a_l_u_e.
+                      The width of the field in the first line is given by
+                      _f_i_r_s_t___w_i_d_t_h.  For subsequent lines the width is given by
+                      _l_a_t_t_e_r___w_i_d_t_h.  If _l_a_t_t_e_r___w_i_d_t_h is -1, _f_i_r_s_t___w_i_d_t_h is
+                      used for all lines.  If _r_i_g_h_t___j_u_s_t_i_f_y is true then the
+                      field is right justified within the width of the field.
+                      If it is false, then the field is left justified and
+                      padded to the full width of the field.  If _c_o_l_o_r_i_z_e is
+                      true, then ledger will honor color settings.
+
+     mmaarrkkeett(_v_a_l_u_e, _d_a_t_e_t_i_m_e)
+                      Return the price of _v_a_l_u_e at _d_a_t_e_t_i_m_e.  Note that
+                      _d_a_t_e_t_i_m_e must be surrounded by brackets in order to be
+                      parsed correctly, e.g.  [2012/03/23].
+
+     mmeettaa(_n_a_m_e)       Return the value of metadata named _n_a_m_e.
+
+     nnoottee             Return the note for the posting.
+
+     nnooww              Return the current datetime.
+
+     ooppttiioonnss          A variable that allows access to the values of the given
+                      command-line options using the long option names, e.g.
+                      to see whether ----ddaaiillyy (--DD) was given use ooppttiioonn..ddaaiillyy.
+
+     ppaayyeeee            Return the payee of the posting.
+
+     ppeerrcceenntt(_v_a_l_u_e___a, _v_a_l_u_e___b)
+                      Return the percentage of _v_a_l_u_e___a in relation to _v_a_l_u_e___b
+                      (used as 100%).
+
+     ppeennddiinngg          Return true if the posting is marked as pending, false
+                      otherwise.
+
+     ppeerrcceenntt(_v_a_l_u_e___a, _v_a_l_u_e___b)
+                      Return the percentage of _v_a_l_u_e___a in relation to _v_a_l_u_e___b.
+
+     pprriinntt(_v_a_l_u_e)     Print _v_a_l_u_e to stdout.  Used internally for debugging.
+
+     qquuaannttiittyy(_v_a_l_u_e)  Return the quantity of _v_a_l_u_e for values that have a per-
+                      unit cost.
+
+     qquuootteedd(_e_x_p_r_e_s_s_i_o_n)
+                      Surround _e_x_p_r_e_s_s_i_o_n with double-quotes.
+
+     qquuootteedd__rrffcc44118800(_e_x_p_r_e_s_s_i_o_n)
+                      Surround _e_x_p_r_e_s_s_i_o_n with double-quotes, compatible with
+                      rfc 4180.
+
+     rreeaall             Return true if the transaction is real, i.e not an
+                      automated or virtual transaction, false otherwise.
+
+     rroouunnddttoo(_v_a_l_u_e, _n)
+                      Return _v_a_l_u_e rounded to _n digits.  Does not affect
+                      formatting.
+
+     sshhoouulldd__bboolldd      Return true if expression given to ----bboolldd--iiff evaluates
+                      to true.  Internal use only!
+
+     ssccrruubb(_v_a_l_u_e)     Clean _v_a_l_u_e using various transformations such as round,
+                      stripping value annotations, and more.
+
+     ssttrriipp(_v_a_l_u_e)     Strip value annotation from _v_a_l_u_e.
+
+     ttaagg(_n_a_m_e)        Return the value of tag named _n_a_m_e.
+
+     ttoo__aammoouunntt(_v_a_l_u_e)
+                      Convert _v_a_l_u_e to an amount.  Internal use only!
+
+     ttoo__bbaallaannccee(_v_a_l_u_e)
+                      Convert _v_a_l_u_e to a balance.  Internal use only!
+
+     ttoo__bboooolleeaann(_v_a_l_u_e)
+                      Convert _v_a_l_u_e to a boolean.  Internal use only!
+
+     ttoo__ddaattee(_v_a_l_u_e)   Convert _v_a_l_u_e to a date.  Internal use only!
+
+     ttoo__ddaatteettiimmee(_v_a_l_u_e)
+                      Convert _v_a_l_u_e to a datetime.  Internal use only!
+
+     ttoo__iinntt(_v_a_l_u_e)    Return the integer value for _v_a_l_u_e.
+
+     ttoo__mmaasskk(_v_a_l_u_e)   Convert _v_a_l_u_e to a mask.  Internal use only!
+
+     ttoo__sseeqquueennccee(_v_a_l_u_e)
+                      Convert _v_a_l_u_e to a sequence.  Internal use only!
+
+     ttoo__ssttrriinngg(_v_a_l_u_e)
+                      Convert _v_a_l_u_e to a character string.
+
+     ttooddaayy            Return today's date.
+
+     ttoottaall            Return the total of the posting.
+
+     ttoottaall__eexxpprr       Return the calculated total of the posting according to
+                      the ----ttoottaall option.
+
+     ttrriimm(_v_a_l_u_e)      Trim leading and trailing whitespace from _v_a_l_u_e.
+
+     ttrruunnccaatteedd(_s_t_r_i_n_g, _t_o_t_a_l___l_e_n, _a_c_c_o_u_n_t___l_e_n)
+                      Truncate _s_t_r_i_n_g to _t_o_t_a_l___l_e_n ensuring that each account
+                      is at least _a_c_c_o_u_n_t___l_e_n long.
+
+     vviirrttuuaall          Return true if the transaction is virtual, e.g
+                      automated, false otherwise.
+
+DDEEBBUUGG CCOOMMMMAANNDDSS
+     In addition to the regular reporting commands, lleeddggeerr also accepts
+     several debug commands:
+
+     aarrggss [_r_e_p_o_r_t_-_q_u_e_r_y]
+              Display complete analysis of how lleeddggeerr interpreted the given
+              _r_e_p_o_r_t_-_q_u_e_r_y.  Useful if you want to understand how report
+              queries are translated into value expressions.
+
+     eevvaall [_v_a_l_u_e_-_e_x_p_r_e_s_s_i_o_n]
+              Evaluate the given _v_a_l_u_e_-_e_x_p_r_e_s_s_i_o_n and prints the result.  For
+              more on value expressions, see the section _E_X_P_R_E_S_S_I_O_N_S.
+
+     ffoorrmmaatt [_f_o_r_m_a_t_-_s_t_r_i_n_g]
+              Display an analysis of how _f_o_r_m_a_t_-_s_t_r_i_n_g was parsed, and what it
+              would look like applied to a sample transaction.  For more on
+              format strings, see the section _F_O_R_M_A_T_S.
+
+     ggeenneerraattee
+              Generate 50 randomly composed yet valid lleeddggeerr transactions.
+
+     ppaarrssee [_v_a_l_u_e_-_e_x_p_r_e_s_s_i_o_n]
+              Parse the given _v_a_l_u_e_-_e_x_p_r_e_s_s_i_o_n and display an analysis of the
+              expression tree and its evaluated value.  For more on value
+              expressions, see the section _E_X_P_R_E_S_S_I_O_N_S.
+
+     ppyytthhoonn [_f_i_l_e]
+              Invoke a Python interpreter to read the given _f_i_l_e.  What is
+              special about this is that the lleeddggeerr module is builtin, not
+              read from disk, so it doesn't require lleeddggeerr to be installed
+              anywhere, or the shared library variants to be built.
+
+     rreellooaadd   Reload all data files for the current session immediately.  Can
+              only be used in the REPL.
+
+     tteemmppllaattee [_d_r_a_f_t_-_t_e_m_p_l_a_t_e]
+              Display information about how _d_r_a_f_t_-_t_e_m_p_l_a_t_e was parsed.  See
+              the section on _D_R_A_F_T_S.
+
+EENNVVIIRROONNMMEENNTT
+     Every option to lleeddggeerr may be set using an environment variable if the
+     option has a long name.  For example setting the environment variable
+     LEDGER_DATE_FORMAT="%d.%m.%Y' will have the same effect as specifying
+     ----ddaattee--ffoorrmmaatt _'_%_d_._%_m_._%_Y_' on the command-line.  Options on the command-
+     line always take precedence over environment variable settings, however.
+
+FFIILLEESS
+     _~_/_._l_e_d_g_e_r_r_c
+              Your personal lleeddggeerr initializations.
+
+SSEEEE AALLSSOO
+     beancount(1), hledger(1)
+
+     The full documentation for lleeddggeerr is maintained as a Texinfo manual.  If
+     the iinnffoo program is installed on your system, the command
+           info ledger3
+     should give you access to the complete manual.
+
+AAUUTTHHOORRSS
+     John Wiegley <johnw@newartisans.com>
+
+Linux 3.18.35                   March 15, 2019                   Linux 3.18.35
